@@ -1,0 +1,22 @@
+name: znuny-analytics
+
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: znuny_analytics
+      POSTGRES_USER: znuny_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Crie o arquivo .env e defina POSTGRES_PASSWORD}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-55433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./sql/001_initial.sql:/docker-entrypoint-initdb.d/001_initial.sql:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "znuny_admin", "-d", "znuny_analytics"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  postgres_data:
